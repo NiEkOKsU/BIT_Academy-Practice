@@ -12,7 +12,7 @@ def testc():
     assert C(-2, 1) * C(5, 2) == C(-12, 1)
 
 def testd():
-    assert C(4, -2) * C(-1, 2) == C(0, 6)
+    assert C(4, -2) * C(-1, 2) == C(0, 10)
 
 def teste():
     x1 = randint(10**5, 10**10)
