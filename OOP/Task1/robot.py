@@ -25,7 +25,7 @@ class robot:
             if y - val < 0:
                 y -= 1
                 flag = 1
-                while battery >= 0 and y > 0:
+                while battery >= 0 and y >= 0:
                     if map[x][y] == 'T':
                         y -= 1
                         battery -= 1
@@ -114,7 +114,7 @@ class robot:
             if y + val > len_map_y - 1:
                 y += 1
                 flag = 1
-                while battery >= 0 and y < len_map_y - 1:
+                while battery >= 0 and y <= len_map_y - 1:
                     if map[x][y] == 'T':
                         y += 1
                         battery -= 1
@@ -202,7 +202,7 @@ class robot:
             if x - val < 0:
                 x -= 1
                 flag = 1
-                while battery >= 0 and x > 0:
+                while battery >= 0 and x >= 0:
                     if map[x][y] == 'T':
                         x -= 1
                         battery -= 1
@@ -291,7 +291,7 @@ class robot:
             if x + val > len_map_x - 1:
                 x += 1
                 flag = 1
-                while battery >= 0 and x < len_map_x - 1:
+                while battery >= 0 and x <= len_map_x - 1:
                     if map[x][y] == 'T':
                         x += 1
                         battery -= 1
@@ -381,21 +381,22 @@ class robot:
 
     def get_status(self):
         if self.__s == None:
-            if self.get_battery == 0:
-                return robotStatus.DEAD
+            if self.get_battery() == 0:
+                self.set_status(robotStatus.DEAD)
+            else:
+                T, x, y = self.__T, self.get_x(), self.get_y()
 
-            T, x, y = self.__T, self.get_x(), self.get_y()
-
-            if T[x][y] == 'T':
-                return robotStatus.ALIVE
-            elif T[x][y] == 'W':
-                return robotStatus.WATER
-            elif T[x][y] == 'B':
-                self.__T[x][y] = 'T'
-                T[x][y] = 'T'
-                self.set_battery(self.get_battery() + BATTERY_VAL)
-                return robotStatus.ALIVE
-            return robotStatus.CRASH
+                if T[x][y] == 'T':
+                    self.set_status(robotStatus.ALIVE)
+                elif T[x][y] == 'W':
+                    self.set_status(robotStatus.WATER)
+                elif T[x][y] == 'B':
+                    self.__T[x][y] = 'T'
+                    T[x][y] = 'T'
+                    self.set_battery(self.get_battery() + BATTERY_VAL)
+                    self.set_status(robotStatus.ALIVE)
+                else:
+                    self.set_status(robotStatus.CRASH)
         return self.__s
 
     def get_battery(self):
@@ -405,11 +406,10 @@ class robot:
         status = self.get_status()
         x, y = self.get_x(), self.get_y()
         T = self.__T
-
         if status == robotStatus.ALIVE:
             T[x][y] = 'R'
-            return T
-        T[x][y] = 'X'
+        else:
+            T[x][y] = 'X'
         return T
 
     def get_x(self):
