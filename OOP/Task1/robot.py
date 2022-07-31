@@ -21,6 +21,7 @@ class robot:
         if val > 0 and st == robotStatus.ALIVE and battery >= 0:
             map = self.get_map()
             x, y = self.get_x(), self.get_y()
+            self.__T[x][y] = 'T'
             if y - val < 0:
                 y -= 1
                 flag = 1
@@ -62,7 +63,7 @@ class robot:
                             self.set_y(0)
                             self.set_status(robotStatus.CRASH)
                     else:
-                        self.set_battery(battery)
+                        self.set_battery(battery - 1)
                         self.set_y(0)
                         self.set_status(robotStatus.CRASH)
             else:
@@ -88,7 +89,7 @@ class robot:
                             self.set_battery(battery)
                             self.set_y(i + 1)
                             break
-                if battery == 0:
+                if battery == 0 and self.get_status() == robotStatus.ALIVE:
                     if map[x][y - val-1] != 'B':
                         self.set_status(robotStatus.DEAD)
                         self.set_y(y - val)
@@ -108,6 +109,7 @@ class robot:
         if val > 0 and st == robotStatus.ALIVE and battery >= 0:
             map = self.get_map()
             x, y = self.get_x(), self.get_y()
+            self.__T[x][y] = 'T'
             len_map_y = len(map[x])
             if y + val > len_map_y - 1:
                 y += 1
@@ -150,7 +152,7 @@ class robot:
                             self.set_y(y)
                             self.set_status(robotStatus.CRASH)
                     else:
-                        self.set_battery(battery)
+                        self.set_battery(battery - 1)
                         self.set_y(len_map_y - 1)
                         self.set_status(robotStatus.CRASH)
             else:
@@ -176,7 +178,7 @@ class robot:
                             self.set_battery(battery)
                             self.set_y(i - 1)
                             break
-                if battery == 0:
+                if battery == 0 and self.get_status() == robotStatus.ALIVE:
                     if map[x][y + val + 1] != 'B':
                         self.set_status(robotStatus.DEAD)
                         self.set_y(y + val)
@@ -196,6 +198,7 @@ class robot:
         if val > 0 and st == robotStatus.ALIVE and battery >= 0:
             map = self.get_map()
             x, y = self.get_x(), self.get_y()
+            self.__T[x][y] = 'T'
             if x - val < 0:
                 x -= 1
                 flag = 1
@@ -237,7 +240,7 @@ class robot:
                             self.set_x(0)
                             self.set_status(robotStatus.CRASH)
                     else:
-                        self.set_battery(battery)
+                        self.set_battery(battery - 1)
                         self.set_x(0)
                         self.set_status(robotStatus.CRASH)
             else:
@@ -263,7 +266,7 @@ class robot:
                             self.set_battery(battery)
                             self.set_x(i + 1)
                             break
-                if battery == 0:
+                if battery == 0 and self.get_status() == robotStatus.ALIVE:
                     if map[x - val - 1][y] != 'B':
                         self.set_status(robotStatus.DEAD)
                         self.set_x(x - val)
@@ -282,8 +285,9 @@ class robot:
         battery = self.get_battery()
         if val > 0 and st == robotStatus.ALIVE and battery >= 0:
             map = self.get_map()
-            len_map_x = len(map)
             x, y = self.get_x(), self.get_y()
+            self.__T[x][y] = 'T'
+            len_map_x = len(map)
             if x + val > len_map_x - 1:
                 x += 1
                 flag = 1
@@ -313,26 +317,23 @@ class robot:
                         self.set_battery(0)
                         self.set_x(x - 1)
                         self.set_status(robotStatus.DEAD)
-                    elif battery == 0 and x == len_map_x - 1:
+                    elif battery == 0:
                         if map[x][y] != 'B':
                             self.set_battery(0)
-                            self.set_x(x)
+                            self.set_x(len_map_x - 1)
                             self.set_status(robotStatus.DEAD)
                         else:
                             self.set_battery(BATTERY_VAL)
                             map[x][y] = 'T'
                             self.__T[x][y] = 'T'
-                            self.set_x(x)
+                            self.set_x(len_map_x - 1)
                             self.set_status(robotStatus.CRASH)
                     else:
-                        self.set_battery(battery)
+                        self.set_battery(battery - 1)
                         self.set_x(len_map_x - 1)
                         self.set_status(robotStatus.CRASH)
-                self.set_x(len_map_x - 1)
-                self.set_status(robotStatus.CRASH)
-                self.set_battery(len_map_x - 1 - x)
             else:
-                for i in range(x + 1, x + val+1):
+                for i in range(x + 1, x + val + 1):
                     battery -= 1
                     if battery < 0:
                         self.set_status(robotStatus.DEAD)
@@ -354,7 +355,7 @@ class robot:
                             self.set_x(i - 1)
                             self.set_battery(battery)
                             break
-                if battery == 0:
+                if battery == 0 and self.get_status() == robotStatus.ALIVE:
                     if map[x + val+1][y] != 'B':
                         self.set_status(robotStatus.DEAD)
                         self.set_x(x + val)
@@ -389,6 +390,11 @@ class robot:
                 return robotStatus.ALIVE
             elif T[x][y] == 'W':
                 return robotStatus.WATER
+            elif T[x][y] == 'B':
+                self.__T[x][y] = 'T'
+                T[x][y] = 'T'
+                self.set_battery(self.get_battery() + BATTERY_VAL)
+                return robotStatus.ALIVE
             return robotStatus.CRASH
         return self.__s
 
@@ -403,7 +409,7 @@ class robot:
         if status == robotStatus.ALIVE:
             T[x][y] = 'R'
             return T
-        T[x][y] = 'x'
+        T[x][y] = 'X'
         return T
 
     def get_x(self):
